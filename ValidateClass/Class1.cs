@@ -12,7 +12,6 @@ namespace ValidationClass
     {
         public static bool ValidateTextBox(TextBox txt)
         {
-            // if (String.IsNullOrEmpty(txt.Text))
             if (String.IsNullOrWhiteSpace(txt.Text))
             {
                 MessageBox.Show(txt.Tag + " is required");
@@ -76,68 +75,36 @@ namespace ValidationClass
             }
         }
 
-        public static bool ValidateDOB(TextBox txt)
+        public static bool ValidateDOB(DateTimePicker dateTimePicker)
         {
-            if (!ValidateTextBox(txt))
+            if (string.IsNullOrWhiteSpace(dateTimePicker.Text))
             {
+                MessageBox.Show("Please select " + dateTimePicker.Tag);
+                dateTimePicker.Focus();
                 return false;
             }
-
-            try
+            else
             {
-                String strYear = txt.Text.Substring(0, 4);
-                String strMonth = txt.Text.Substring(5, 2);
-                String strDay = txt.Text.Substring(8, 2);
-                String strFifthChar = txt.Text.Substring(4, 1);
-                String strEightChar = txt.Text.Substring(7, 1);
-
-                if (!ValidateForNumeric(strYear, "Year"))
-                {
-                    return false;
-                }
-                if (!ValidateForNumeric(strMonth, "Month"))
-                {
-                    return false;
-                }
-                if (!ValidateForNumeric(strDay, "Day"))
-                {
-                    return false;
-                }
-                if (strFifthChar != "-")
-                {
-                    MessageBox.Show("The fifth character must be a hyphen");
-                    return false;
-                }
-                if (strEightChar != "-")
-                {
-                    MessageBox.Show("The eight character must be a hyphen");
-                    return false;
-                }
                 return true;
             }
-            catch
-            {
-                MessageBox.Show(txt.Tag + " format is incorrect!\nMust be YYYY-MM-DD format");
-                return false;
-            }
-
         }
-
         public static bool ValidateEmail(TextBox txt)
         {
             if (!ValidateTextBox(txt))
             {
                 return false;
             }
-            String email = txt.Text;
+            String email = txt.Text;        
+
+            Regex reg = new Regex(@"^([A-Z]{1})([a-z]+)([A-Z]{1})([a-z]+)@([d]{1}[u]{1}[m]{2}[y]{1})([M]{1}[a]{1}[i]{1}[l]{1})(\.[c]{1}[o]{1}[m]{1})\.([a]{1}[u]{1})$");
             if (email.IndexOf("@") == -1)
             {
-                MessageBox.Show("Email address must contain an @ character");
+                MessageBox.Show(txt.Tag + " must contain an @ character" + "\nImportant Note: " + txt.Tag + " format must be:\nFirstnameLastname@dummyMail.com.au");
                 return false;
             }
             if (email.IndexOf("@") != email.LastIndexOf("@"))
             {
-                MessageBox.Show("Email address must only contain one @ character");
+                MessageBox.Show(txt.Tag + " must only contain one @ character");
                 return false;
             }
             if (email.IndexOf("@") == 0 || email.LastIndexOf("@") == email.Length - 1)
@@ -147,17 +114,22 @@ namespace ValidationClass
             }
             if (email.IndexOf(".") == -1)
             {
-                MessageBox.Show("The email must contain at least on . character");
+                MessageBox.Show(txt.Tag + " must contain at least on . character");
                 return false;
             }
             if (email.IndexOf("@.") > -1 || email.IndexOf(".@") > -1)
             {
-                MessageBox.Show("The email address cannot contain the @. or .@ together");
+                MessageBox.Show(txt.Tag + " cannot contain the @. or .@ together");
                 return false;
             }
             if (email.IndexOf(".") == 0 || email.LastIndexOf(".") == email.Length - 1)
             {
                 MessageBox.Show("The . cannot be the first or last character");
+                return false;
+            }
+            if (!reg.IsMatch(txt.Text))
+            {
+                MessageBox.Show("Important note: " + txt.Tag + " format must be:\nFirstnameLastname@dummyMail.com.au");
                 return false;
             }
             return true;
@@ -176,11 +148,6 @@ namespace ValidationClass
                 return false;
             }
         }
-
-        //public static bool ValidateDateRange()
-        //{
-
-        //}
 
         public static bool ValidateTextBoxLength(TextBox txt, int len)
         {
@@ -207,29 +174,54 @@ namespace ValidationClass
             }
             return true;
         }
-        public static bool CheckDate(String date)
+
+        public static bool ValidateStreetAddress(TextBox txt)
         {
-            try
+            Regex reg = new Regex(@"^([\d]+)\s([A-Z]{1})([a-z]+)\s([A-Z]{1})([a-z]+)([\.]?)$");
+            if (reg.IsMatch(txt.Text)) return true;
+            else MessageBox.Show(txt.Tag + " must begin with the street number followed by the street name. Each word must begin with a capital letter. \nFor example: 8 Happy St.");
+            return false;
+        }
+
+        public static bool ValidatePostCode(string code)
+        {
+            if (code == null || code.Length != 4)
             {
-                DateTime dt = DateTime.Parse(date);
-                return true;
-            }
-            catch
-            {
-                MessageBox.Show("Date is out of range.\nPlease enter month range between 1-12 and day range between 1-31");
+                MessageBox.Show("Post code must contain four numeric characters.");
                 return false;
             }
-        }
-        public static bool ValidateStringForNumeric(String txt, String str)
-        {
-            try
+            var characters = code.ToCharArray();
+            if (characters.Any(character => !Char.IsNumber(character)))
             {
-                Convert.ToInt32(txt);
+                MessageBox.Show("Post code must contain four numeric characters.");
+                return false;
+            }
+            if ("013456789".Contains(characters.First()))
+            {
+                MessageBox.Show("Invalid post code!\nPost code must start with 2 and contain four numeric characters.");
+                return false;
+            }
+            return true;
+        }
+
+        public static bool ValidatePhoneNumber(TextBox txt)
+        {
+            Regex reg = new Regex(@"^[0]{1}[4]{1}[0-9]{8}$");
+            if (reg.IsMatch(txt.Text)) return true;
+            else MessageBox.Show("Invalid! " + txt.Tag + " Try again.\n" + txt.Tag + " should start with 04********\nand consist of 10 numeric values");
+            return false;
+        }
+
+        public static bool ValidateNameFormat(TextBox txt)
+        {
+            Regex reg = new Regex(@"^[A-Z]{1}([a-z]+)$");
+            if (reg.IsMatch(txt.Text))
+            {
                 return true;
             }
-            catch
+            else
             {
-                MessageBox.Show(str);
+                MessageBox.Show(txt.Tag + " must start with a capital letter and consist of more than 1 alphabet.");
                 return false;
             }
         }
