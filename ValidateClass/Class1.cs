@@ -75,7 +75,7 @@ namespace ValidationClass
             }
         }
 
-        public static bool ValidateDOB(DateTimePicker dateTimePicker)
+        public static bool ValidateDate(DateTimePicker dateTimePicker)
         {
             if (string.IsNullOrWhiteSpace(dateTimePicker.Text))
             {
@@ -138,13 +138,13 @@ namespace ValidationClass
 
         public static bool ValidateTextBoxRange(TextBox txt1, int min, int max)
         {
-            if (Convert.ToInt32(txt1.Text) > min && Convert.ToInt32(txt1.Text) < max)
+            if (Convert.ToInt32(txt1.Text) >= min && Convert.ToInt32(txt1.Text) <= max)
             {
                 return true;
             }
             else
             {
-                MessageBox.Show(txt1.Tag + " is out of range");
+                MessageBox.Show(txt1.Tag + " is out of range.\nThe range must be between " + min + " and " + max);
                 return false;
             }
         }
@@ -223,6 +223,19 @@ namespace ValidationClass
             {
                 MessageBox.Show(txt.Tag + " must start with a capital letter and consist of more than 1 alphabet.");
                 return false;
+            }
+        }
+
+        public static bool ValidateDateStartVsEnd(DateTimePicker dateStart, DateTimePicker dateEnd)
+        {
+            if (dateStart.Value >= dateEnd.Value)
+            {
+                MessageBox.Show(dateEnd.Tag + " cannot occur before the " + dateStart.Tag);
+                return false;
+            }
+            else
+            {
+                return true;
             }
         }
     }
